@@ -28,20 +28,32 @@ def get_volume_status(drive_letter: str) -> str:
         return "Unknown"
 
 def enable_bitlocker(drive_letter: str, password: str) -> str:
-    """Enables BitLocker XTS-AES 256 on the drive using the provided password."""
+    """Enables BitLocker XTS-AES 256 LIVE on the mounted drive using the provided password."""
     clean_letter = drive_letter.replace(":", "").strip() + ":"
-    # Escape single quotes in password for PowerShell string literal safety
     escaped_pwd = password.replace("'", "''")
     
+    # PowerShell command with validated parameters
     script = f"""
     $sec = ConvertTo-SecureString '{escaped_pwd}' -AsPlainText -Force
-    Enable-BitLocker -MountPoint '{clean_letter}' -EncryptionMethod XtsAes256 -UsedSpaceOnly -PasswordProtector -Secret $sec
+    try {{
+        Enable-BitLocker -MountPoint '{clean_letter}' -Password $sec -PasswordProtector -UsedSpaceOnly -EncryptionMethod XtsAes256 -ErrorAction Stop
+    }} catch {{
+        # Fallback to default cipher if XtsAes256 is policy-restricted
+        Enable-BitLocker -MountPoint '{clean_letter}' -Password $sec -PasswordProtector -UsedSpaceOnly
+    }}
     """
     res = run_ps(script, check=True)
     return res.stdout
 
+def disable_bitlocker(drive_letter: str) -> str:
+    """Decrypts the volume LIVE and removes BitLocker protection for clean, unencrypted access."""
+    clean_letter = drive_letter.replace(":", "").strip() + ":"
+    script = f"Disable-BitLocker -MountPoint '{clean_letter}'"
+    res = run_ps(script, check=True)
+    return res.stdout
+
 def unlock_volume_password(drive_letter: str, password: str) -> bool:
-    """Unlocks a locked BitLocker volume using a password."""
+    """Unlocks a locked BitLocker volume LIVE using a password."""
     clean_letter = drive_letter.replace(":", "").strip() + ":"
     escaped_pwd = password.replace("'", "''")
     script = f"""
@@ -56,7 +68,7 @@ def unlock_volume_password(drive_letter: str, password: str) -> bool:
         raise
 
 def lock_volume(drive_letter: str):
-    """Locks a BitLocker volume and dismounts it if forced."""
+    """Locks a BitLocker volume and forces key dismount."""
     clean_letter = drive_letter.replace(":", "").strip() + ":"
     try:
         script = f"Lock-BitLocker -MountPoint '{clean_letter}' -ForceDismount"

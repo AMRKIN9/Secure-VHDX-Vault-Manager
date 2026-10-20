@@ -3,6 +3,7 @@ import shutil
 import hashlib
 import json
 import time
+import re
 from typing import List, Dict, Optional, Callable
 import logging
 from powershell import run_ps
@@ -14,7 +15,7 @@ def ensure_dir(path: str):
         os.makedirs(path, exist_ok=True)
 
 class BackupManager:
-    """Handles snapshot backups, SHA-256 checksum verification, and integrity checks."""
+    """Handles snapshot backups, SHA-256 checksum verification, rollbacks, and integrity checks."""
     
     @staticmethod
     def calculate_sha256(file_path: str, progress_callback: Optional[Callable[[float], None]] = None) -> str:
@@ -54,7 +55,7 @@ class BackupManager:
         sha_path = f"{backup_path}.sha256"
 
         if progress_callback:
-            progress_callback(f"Copying vault binary to backup storage...")
+            progress_callback("Copying vault binary to backup storage...")
 
         # Copy the VHDX binary
         shutil.copy2(vhdx_path, backup_path)
@@ -108,6 +109,62 @@ class BackupManager:
         return expected_hash.lower() == current_hash.lower()
 
     @classmethod
+    def restore_backup(cls, backup_path: str, progress_callback: Optional[Callable[[str], None]] = None) -> str:
+        """Rolls back and restores a backup over the active VHDX vault, verifying SHA-256 first."""
+        if not os.path.exists(backup_path):
+            raise FileNotFoundError(f"Backup file not found: {backup_path}")
+
+        if progress_callback:
+            progress_callback("Verifying SHA-256 checksum before rollback...")
+
+        if not cls.verify_backup(backup_path):
+            raise ValueError("Integrity check failed: Backup SHA-256 seal mismatch.")
+
+        base_name = os.path.basename(backup_path)
+        match = re.match(r"^(.*?)_backup_\d{8}_\d{6}\.vhdx$", base_name, re.IGNORECASE)
+        if match:
+            target_name = match.group(1) + ".vhdx"
+        else:
+            target_name = base_name.replace("_backup", "")
+
+        from vhd_manager import get_storage_dir, _get_vhd_info, dismount_container
+        target_path = os.path.join(get_storage_dir(), target_name)
+
+        if os.path.exists(target_path):
+            is_mounted, _ = _get_vhd_info(target_path)
+            if is_mounted:
+                if progress_callback:
+                    progress_callback(f"Dismounting active vault {target_name}...")
+                dismount_container(target_path)
+
+        if progress_callback:
+            progress_callback(f"Restoring {target_name} from backup image...")
+
+        shutil.copy2(backup_path, target_path)
+        return target_path
+
+    @classmethod
+    def delete_backup(cls, backup_path: str):
+        """Deletes a backup file, its .sha256 seal, and updates the manifest."""
+        if os.path.exists(backup_path):
+            os.remove(backup_path)
+        sha_path = f"{backup_path}.sha256"
+        if os.path.exists(sha_path):
+            os.remove(sha_path)
+
+        dest_dir = os.path.dirname(backup_path)
+        manifest_path = os.path.join(dest_dir, "manifest.json")
+        if os.path.exists(manifest_path):
+            try:
+                with open(manifest_path, "r", encoding="utf-8") as mf:
+                    manifest = json.load(mf)
+                manifest = [b for b in manifest if os.path.abspath(b.get("backup_path", "")) != os.path.abspath(backup_path)]
+                with open(manifest_path, "w", encoding="utf-8") as mf:
+                    json.dump(manifest, mf, indent=2)
+            except Exception as e:
+                logging.error(f"Failed to update manifest after deletion: {e}")
+
+    @classmethod
     def list_backups(cls, target_dir: Optional[str] = None) -> List[Dict]:
         """Lists all existing backups with metadata and verification status."""
         dest_dir = target_dir or DEFAULT_BACKUP_DIR
@@ -116,7 +173,6 @@ class BackupManager:
             try:
                 with open(manifest_path, "r", encoding="utf-8") as mf:
                     manifest = json.load(mf)
-                    # Filter existing files
                     return [b for b in manifest if os.path.exists(b.get("backup_path", ""))]
             except Exception as e:
                 logging.error(f"Failed to read backup manifest: {e}")
