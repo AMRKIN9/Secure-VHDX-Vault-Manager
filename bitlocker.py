@@ -5,16 +5,12 @@ from powershell import run_ps, run_ps_json
 def get_volume_status(drive_letter: str) -> str:
     """Returns 'Off', 'Locked', 'Unlocked', or 'Unknown'."""
     try:
-        # Get-BitLockerVolume requires Admin rights
-        # Format of ProtectionStatus: 0: Off, 1: On, 2: Unknown
-        # Format of VolumeStatus: 0: FullyDecrypted, 1: FullyEncrypted, 2: EncryptionInProgress, 3: DecryptionInProgress, 4: EncryptionSuspended, 5: DecryptionSuspended
-        # LockStatus: 0: Unlocked, 1: Locked
-        
-        script = f"Get-BitLockerVolume -MountPoint '{drive_letter}' | Select-Object ProtectionStatus, VolumeStatus, LockStatus"
+        clean_letter = drive_letter.replace(":", "").strip() + ":"
+        script = f"Get-BitLockerVolume -MountPoint '{clean_letter}' | Select-Object ProtectionStatus, VolumeStatus, LockStatus"
         data = run_ps_json(script, check=False)
         
         if not data:
-            return "Off" # If we can't get it, it might not be a BitLocker volume or no admin rights. Let's assume Off if no data or not found.
+            return "Off"
             
         protection_status = data.get("ProtectionStatus", 0)
         lock_status = data.get("LockStatus", 0)
@@ -31,22 +27,47 @@ def get_volume_status(drive_letter: str) -> str:
         logging.error(f"Error checking BitLocker status for {drive_letter}: {e}")
         return "Unknown"
 
+def enable_bitlocker(drive_letter: str, password: str) -> str:
+    """Enables BitLocker XTS-AES 256 on the drive using the provided password."""
+    clean_letter = drive_letter.replace(":", "").strip() + ":"
+    # Escape single quotes in password for PowerShell string literal safety
+    escaped_pwd = password.replace("'", "''")
+    
+    script = f"""
+    $sec = ConvertTo-SecureString '{escaped_pwd}' -AsPlainText -Force
+    Enable-BitLocker -MountPoint '{clean_letter}' -EncryptionMethod XtsAes256 -UsedSpaceOnly -PasswordProtector -Secret $sec
+    """
+    res = run_ps(script, check=True)
+    return res.stdout
+
+def unlock_volume_password(drive_letter: str, password: str) -> bool:
+    """Unlocks a locked BitLocker volume using a password."""
+    clean_letter = drive_letter.replace(":", "").strip() + ":"
+    escaped_pwd = password.replace("'", "''")
+    script = f"""
+    $sec = ConvertTo-SecureString '{escaped_pwd}' -AsPlainText -Force
+    Unlock-BitLocker -MountPoint '{clean_letter}' -Password $sec
+    """
+    try:
+        run_ps(script, check=True)
+        return True
+    except Exception as e:
+        logging.error(f"Failed to unlock {drive_letter}: {e}")
+        raise
+
 def lock_volume(drive_letter: str):
     """Locks a BitLocker volume and dismounts it if forced."""
+    clean_letter = drive_letter.replace(":", "").strip() + ":"
     try:
-        # We use ForceDismount to ensure it locks even if in use
-        script = f"Lock-BitLocker -MountPoint '{drive_letter}' -ForceDismount"
-        run_ps(script)
+        script = f"Lock-BitLocker -MountPoint '{clean_letter}' -ForceDismount"
+        run_ps(script, check=True)
     except Exception as e:
         logging.error(f"Error locking BitLocker volume {drive_letter}: {e}")
         raise
 
-def unlock_volume(drive_letter: str):
-    """Opens the Windows native BitLocker unlock dialog."""
-    # The native way to prompt for unlock is to try and open the drive or use the bdeui.exe
-    # Alternatively, just launching explorer on the drive will prompt the user
+def unlock_volume_native(drive_letter: str):
+    """Triggers the Windows native BitLocker unlock dialog."""
     try:
-        # This will open Explorer. If it's locked, Windows will naturally prompt for the password.
         os.startfile(drive_letter)
     except Exception as e:
         logging.error(f"Error opening drive for unlock {drive_letter}: {e}")
@@ -54,7 +75,6 @@ def unlock_volume(drive_letter: str):
 def open_bitlocker_setup():
     """Opens the Windows Control Panel BitLocker applet."""
     try:
-        # control /name Microsoft.BitLockerDriveEncryption
         run_ps("control /name Microsoft.BitLockerDriveEncryption", check=False)
     except Exception as e:
         logging.error(f"Error opening BitLocker setup: {e}")
