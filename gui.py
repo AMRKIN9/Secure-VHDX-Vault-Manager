@@ -351,6 +351,13 @@ class App(ctk.CTk):
         self.sm = SecurityManager()
         self.is_elevated = is_admin()
         
+        icon_path = os.path.join(os.path.dirname(__file__), "icon.ico")
+        if os.path.exists(icon_path):
+            try:
+                self.iconbitmap(icon_path)
+            except Exception:
+                pass
+
         self.build_ui()
         self.refresh_list()
 

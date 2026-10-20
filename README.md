@@ -1,183 +1,107 @@
 <div align="center">
 
-```
-  ███████╗███████╗ ██████╗██╗   ██╗██████╗ ███████╗
-  ██╔════╝██╔════╝██╔════╝██║   ██║██╔══██╗██╔════╝
-  ███████╗█████╗  ██║     ██║   ██║██████╔╝█████╗  
-  ╚════██║██╔══╝  ██║     ██║   ██║██╔══██╗██╔══╝  
-  ███████║███████╗╚██████╗╚██████╔╝██║  ██║███████╗
-  ╚══════╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝
-           // V H D X   V A U L T   M A N A G E R
-```
+<img src="icon.png" width="120" height="120" alt="Secure VHDX Vault Manager Logo" />
 
-### **INDUSTRIAL-GRADE ENCRYPTED STORAGE FOR WINDOWS 11 & 10**
-*Engineered in the Nothing OS Design Philosophy. Powered by Native VHDX & BitLocker XTS-AES 256.*
+# Secure VHDX Vault Manager
 
-<br/>
+**Create private, encrypted personal drives on Windows in seconds — powered by native BitLocker (AES-256), VHDX virtualization, and 2FA.**
 
-[![Stars](https://img.shields.io/github/stars/AMRKIN9/Secure-VHDX-Vault-Manager?style=for-the-badge&color=D71921&logo=github)](https://github.com/AMRKIN9/Secure-VHDX-Vault-Manager/stargazers)
-[![Forks](https://img.shields.io/github/forks/AMRKIN9/Secure-VHDX-Vault-Manager?style=for-the-badge&color=1A1A1A&logo=github)](https://github.com/AMRKIN9/Secure-VHDX-Vault-Manager/network/members)
-[![License](https://img.shields.io/badge/LICENSE-MIT-white?style=for-the-badge&color=0D0D0D)](LICENSE)
-[![Platform](https://img.shields.io/badge/PLATFORM-WINDOWS%2011%20%7C%2010-000000?style=for-the-badge&logo=windows11&logoColor=white)](https://microsoft.com/windows)
-[![Encryption](https://img.shields.io/badge/CIPHER-XTS--AES%20256--BIT-D71921?style=for-the-badge)](https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/)
-[![2FA](https://img.shields.io/badge/2FA-RFC%206238%20TOTP-white?style=for-the-badge&logo=googleauthenticator&logoColor=white)](https://tools.ietf.org/html/rfc6238)
-[![Zero Install](https://img.shields.io/badge/PORTABLE-SINGLE%20EXE-D71921?style=for-the-badge)](https://github.com/AMRKIN9/Secure-VHDX-Vault-Manager/releases)
-
-<br/>
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Platform: Windows](https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011-0078D6?logo=windows)](https://microsoft.com/windows)
+[![Encryption: BitLocker AES-256](https://img.shields.io/badge/Encryption-BitLocker%20XTS--AES%20256-red.svg)](https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/)
+[![2FA: TOTP QR](https://img.shields.io/badge/2FA-Google%20%2F%20MS%20Authenticator-green.svg)](https://tools.ietf.org/html/rfc6238)
+[![Portable: Single EXE](https://img.shields.io/badge/Binary-Single%20Portable%20EXE-brightgreen.svg)](https://github.com/AMRKIN9/Secure-VHDX-Vault-Manager/releases)
 
 </div>
 
 ---
 
-### **// OVERVIEW**
+### What is this?
 
-**Secure VHDX Vault Manager** transforms native Windows virtual disks into air-tight, hardware-accelerated encrypted containers. Unlike legacy third-party encryption drivers that risk kernel panics or break across Windows updates, this manager orchestrates Windows' internal, certified **VHDX Virtualization Layer** alongside military-grade **BitLocker XTS-AES 256-bit** encryption.
+Ever wanted an encrypted digital safe for your private files without installing bloated third-party kernel drivers or trusting proprietary cloud tools?
 
-Packaged as a **single, zero-install portable executable** with zero external runtime dependencies on any modern PC, it features a stark, high-contrast industrial UI inspired by the **Nothing Design Language** (OLED blacks, dot-matrix typography, crisp wireframes, and purposeful Nothing Red accents).
+**Secure VHDX Vault Manager** lets you create isolated, password-protected virtual disk drives (`.vhdx`) formatted with Windows' own enterprise-grade **BitLocker XTS-AES 256-bit encryption**. 
 
----
-
-### **// SYSTEM METRICS & ARCHITECTURE AT A GLANCE**
-
-```
-┌─────────────────────────┬─────────────────────────┬─────────────────────────┬─────────────────────────┐
-│       256-BIT AES       │         0 MS LAG        │       1-CLICK PANIC     │       PORTABLE EXE      │
-│  Native XTS-AES Cipher  │ Near-Bare-Metal VHDX IO │ Force Unmount & Disarm  │  Single Standalone File │
-└─────────────────────────┴─────────────────────────┴─────────────────────────┴─────────────────────────┘
-```
-
-```mermaid
-graph TD
-    UserApp[Secure VHDX Vault Manager] -->|RFC 6238 TOTP QR| AuthGate[2FA Security Gate]
-    AuthGate -->|Elevated UAC Token| CoreEngine[Core Storage Engine]
-    CoreEngine -->|Diskpart / VHD API| VHDX[Native VHDX Virtual Disk]
-    VHDX -->|NTFS Formatting| MountPoint[Assigned Drive Letter X:]
-    MountPoint -->|PowerShell XTS-AES 256| BitLocker[Hardware-Accelerated BitLocker]
-    CoreEngine -->|Streaming SHA-256| BackupEngine[Encrypted Backup & Integrity Seals]
-```
+Mount your vault with one click, work inside it like a normal USB or hard drive (e.g. drive `E:`), and dismount or lock it when you're done. When closed, your vault is just a single unreadable `.vhdx` file that cannot be opened without your password.
 
 ---
 
-### **// KEY CAPABILITIES**
+### Why use this over VeraCrypt or Cloud Lockers?
 
-- **⚡ Zero-Install Portable Binary**: Runs anywhere instantly from a USB drive or local disk without installing drivers, runtimes, or background daemons.
-- **🛡️ Native BitLocker XTS-AES 256**: Direct, in-app passphrase encryption and unlocking. No need to dig through Windows Control Panel.
-- **📱 2FA Authenticator App Integration (RFC 6238)**:
-  - Generate a secure TOTP QR Code right inside the app.
-  - Compatible with **Google Authenticator**, **Microsoft Authenticator**, **Apple Passwords**, **1Password**, and **Authy**.
-  - Enforce 2FA confirmation for critical operations like vault deletion and access disarming.
-- **🚨 1-Click "Panic Lock" Protocol**: Instantly locks all BitLocker keys, dismounts every active VHDX container, and scrubs sensitive in-memory handles in under 500ms.
-- **💾 Cryptographic Backup & Verification Engine**:
-  - One-click snapshot backups to external SSDs, USBs, or NAS shares.
-  - Streaming **SHA-256 integrity seal** generation (`.sha256`) and automated corruption validation.
-- **📊 Real-time Storage Telemetry**: Live progress bars displaying exact volume consumption (Used GB vs Free GB) on mounted volumes.
-- **🔍 Non-Destructive Health Diagnostics**: Direct `chkdsk` volume health scanning from each vault card.
-- **👑 Seamless UAC Elevation**: Automatically detects privilege states and provides a one-click administrative relaunch prompt.
+- **Zero Installation Required**: Runs as a single portable `.exe` file. No drivers, no background services, no reboot required.
+- **Native Windows Speed**: Uses Windows' built-in Hyper-V VHDX storage engine. Zero CPU overhead compared to third-party file drivers.
+- **Direct BitLocker Setup**: Set your encryption password directly in the app. No need to touch Windows Control Panel or PowerShell.
+- **Two-Factor Authentication (2FA)**: Scan an in-app QR code with Google Authenticator, Microsoft Authenticator, or Apple Passwords to guard sensitive operations.
+- **One-Click Panic Lock**: Emergency red button instantly locks BitLocker and dismounts all active vaults in under a second.
+- **Automated Checksum Backups**: Create timestamped snapshot backups with streaming SHA-256 integrity verification to protect against disk corruption.
 
 ---
 
-### **// THE NOTHING OS INTERFACE**
+### Key Features
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ ● SECURE // VHDX VAULT MANAGER                           [ 2FA: ACTIVE ]  [ ! PANIC ]  │
-│ BUILD 2.4.0 [NOTHING_EDITION] // 256-BIT ENCRYPTION                                    │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│ ┌────────────────────────────────────────────────────────────────────────────────────┐ │
-│ │ [ 01 // FINANCIAL_RECORDS.VHDX ]    ● MOUNTED [E:]            CAPACITY: 20.00 GB   │ │
-│ │ [||||||||||||||||........................] 4.20 GB / 20.00 GB (21.0% USED)         │ │
-│ │                                                                                    │ │
-│ │ [ ↗ OPEN ]   [ ⏹ DISMOUNT ]   [ 🔒 LOCK ]   [ 🔍 CHKDSK ]   [ 💾 BACKUP ]  [ 🗑 DEL ] │ │
-│ └────────────────────────────────────────────────────────────────────────────────────┘ │
-│                                                                                        │
-│ ┌────────────────────────────────────────────────────────────────────────────────────┐ │
-│ │ [ 02 // COLD_STORAGE_KEYS.VHDX ]    ● LOCKED [F:]             CAPACITY: 50.00 GB   │ │
-│ │                                                                                    │ │
-│ │ [ ↗ OPEN ]   [ ⏹ DISMOUNT ]   [ 🔓 UNLOCK ]                 [ 💾 BACKUP ]  [ 🗑 DEL ] │ │
-│ └────────────────────────────────────────────────────────────────────────────────────┘ │
-│                                                                                        │
-│ ┌────────────────────────────────────────────────────────────────────────────────────┐ │
-│ │ [ 03 // ARCHIVE_2026.VHDX ]         ○ DISMOUNTED              CAPACITY: 100.00 GB  │ │
-│ │                                                                                    │ │
-│ │ [ ▶ MOUNT ]                                                 [ 💾 BACKUP ]  [ 🗑 DEL ] │ │
-│ └────────────────────────────────────────────────────────────────────────────────────┘ │
-│                                                                                        │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│ [ STATUS: READY ]                                [ ROOT: C:\Users\...\SecureContainers ]│
-└────────────────────────────────────────────────────────────────────────────────────────┘
-```
+| Feature | Description |
+| :--- | :--- |
+| **Instant Vault Creation** | Create dynamic (expandable) or fixed-size VHDX containers from 1 GB to multi-terabyte drives. |
+| **Hardware Encryption** | Protected by Microsoft BitLocker XTS-AES 256-bit encryption. |
+| **2FA Authenticator** | Built-in RFC 6238 TOTP engine with QR code generation for your mobile authenticator app. |
+| **Live Storage Meter** | Displays real-time disk consumption (used GB vs free GB) on mounted vaults. |
+| **Panic Dismount** | One-click button to immediately force-dismount and lock all volumes. |
+| **Integrity Checks** | Run non-destructive `chkdsk` volume health scans directly from the vault card. |
+| **UAC Auto-Elevation** | Automatically detects administrator privilege needs with a single-click prompt. |
 
 ---
 
-### **// FEATURE COMPARISON**
+### How It Works
 
-| Feature | **Secure VHDX Vault** | **VeraCrypt** | **Raw Windows BitLocker** | **Cryptomator** |
-| :--- | :---: | :---: | :---: | :---: |
-| **Zero Installation Needed** | **Yes (.exe)** | No (Needs Driver) | Built-in | No (Needs WebDAV/Dokan) |
-| **Underlying Engine** | **Native Windows Hyper-V** | Custom Kernel Driver | Native Windows OS | Userspace Java |
-| **BitLocker XTS-AES 256** | **Native** | Custom Algorithm | Native | Custom AES-GCM |
-| **Built-in 2FA (TOTP QR Code)**| **Yes (RFC 6238)** | No | No | No |
-| **Emergency Panic Dismount** | **Yes (1-Click)** | Yes | No | No |
-| **Streaming SHA-256 Backups** | **Yes (Built-in)** | Manual Copy | Manual | Manual |
-| **Performance Overhead** | **0% (Hardware)** | 3-7% (Driver CPU) | 0% (Hardware) | 10-25% (Userspace) |
+1. **Create a Vault**: Choose a name, capacity (e.g., 20 GB), and optional BitLocker password.
+2. **Mount & Use**: Click **Mount** to attach the vault as a regular Windows drive letter (e.g. `E:`). Drag and drop your files into it.
+3. **Lock & Dismount**: Click **Dismount** or **Lock**. The drive vanishes from File Explorer and returns to an encrypted, locked file.
 
 ---
 
-### **// QUICK START**
+### Getting Started
 
-#### **Method 1: Portable Executable (Recommended for Users)**
-1. Grab the latest release from the **[Releases](../../releases)** tab: `SecureVaultManager.exe`.
-2. Double-click to run. When prompted by Windows UAC, click **Yes** to grant storage virtualization permissions.
-3. Done! Create your first vault and enable BitLocker with one click.
+#### Option A: Download the Portable App (Zero Install)
+1. Download **`SecureVaultManager.exe`** from the [Releases](https://github.com/AMRKIN9/Secure-VHDX-Vault-Manager/releases) tab.
+2. Double-click to run. When Windows prompts for Administrator access, click **Yes** (required for mounting virtual disks).
+3. Start creating your encrypted vaults.
 
-#### **Method 2: Run from Source (Python 3.10+)**
+#### Option B: Run from Source
 ```bash
 # Clone the repository
 git clone https://github.com/AMRKIN9/Secure-VHDX-Vault-Manager.git
-cd "Secure VHDX Vault Manager"
+cd "Secure-VHDX-Vault-Manager"
 
-# Install lightweight dependencies
+# Install lightweight requirements
 pip install -r requirements.txt
 
-# Launch in Administrator Terminal
+# Run the app (requires Admin terminal)
 python main.py
 ```
 
 ---
 
-### **// TWO-FACTOR AUTHENTICATION (TOTP) SETUP**
+### 2FA Authenticator Setup
 
-1. Click the **`[ 2FA AUTH ]`** button on the top navigation bar.
-2. An industrial monochrome QR code will appear along with your secret Base32 key.
-3. Open your favorite authenticator app (**Google Authenticator**, **Microsoft Authenticator**, **Apple Passwords**, etc.).
-4. Scan the QR code.
-5. Enter the generated 6-digit verification code and click **`[ VERIFY & ENABLE 2FA ]`**.
-6. Your vault operations (like permanent deletion and authorization) are now fortified by hardware-bound TOTP.
+1. Click **`[ 2FA AUTH ]`** on the top toolbar.
+2. Scan the displayed QR code with your authenticator app (**Google Authenticator**, **Microsoft Authenticator**, **Apple Passwords**, **Authy**, etc.).
+3. Enter the 6-digit verification code to activate.
+4. Once enabled, destructive actions like vault deletion require your 6-digit code.
 
 ---
 
-### **// COMPILING THE STANDALONE EXE**
+### Building the Standalone `.exe`
 
-To package the entire application into a single standalone `.exe` without any external dependencies:
+To package everything into a single self-contained executable:
 
 ```bash
 python build_exe.py
 ```
 
-The compiled binary will be placed in `dist/SecureVaultManager.exe`.
+The resulting file will be saved in `dist/SecureVaultManager.exe`.
 
 ---
 
-### **// SECURITY & INTEGRITY DISCLOSURE**
+### License
 
-- **Cryptographic Cipher**: Volumes are partitioned NTFS and encrypted using Windows' certified implementation of **XTS-AES with 256-bit key length** (NIST SP 800-38E compliant).
-- **Data-At-Rest Protection**: When unmounted, the `.vhdx` file is a dormant raw block container. Without the BitLocker password and recovery keys, it cannot be mounted or inspected.
-- **Integrity Seals**: Every backup produces an associated standard `.sha256` checksum file using streaming 4MB chunk calculation.
-
----
-
-### **// LICENSE**
-
-Distributed under the **MIT License**. See [LICENSE](LICENSE) for full legal text.
-Designed with ❤️ following the **Nothing Design Language**.
+This project is licensed under the [MIT License](LICENSE).
